@@ -1,65 +1,157 @@
-import Image from "next/image";
+"use client"
+
+import { useState } from "react"
 
 export default function Home() {
+  const [income, setIncome] = useState("")
+  const [incomeType, setIncomeType] = useState("salary")
+  const [status, setStatus] = useState("single")
+  const [result, setResult] = useState<{
+    incomeNum: number
+    expense: number
+    personalDeduct: number
+    spouseDeduct: number
+    netIncome: number
+    tax: number
+    suggestions: { name: string; max: number; saved: number; desc: string }[]
+  } | null>(null)
+
+  const calculate = () => {
+    const incomeNum = parseFloat(income) || 0
+
+    let expense = 0
+    if (incomeType === "salary") expense = Math.min(incomeNum * 0.5, 100000)
+    if (incomeType === "freelance") expense = Math.min(incomeNum * 0.5, 100000)
+    if (incomeType === "business") expense = Math.min(incomeNum * 0.6, 100000)
+
+    const personalDeduct = 60000
+    const spouseDeduct = status === "married" ? 60000 : 0
+    const netIncome = Math.max(0, incomeNum - expense - personalDeduct - spouseDeduct)
+
+    let tax = 0
+    if (netIncome <= 150000) tax = 0
+    else if (netIncome <= 300000) tax = (netIncome - 150000) * 0.05
+    else if (netIncome <= 500000) tax = 7500 + (netIncome - 300000) * 0.10
+    else if (netIncome <= 750000) tax = 27500 + (netIncome - 500000) * 0.15
+    else if (netIncome <= 1000000) tax = 65000 + (netIncome - 750000) * 0.20
+    else if (netIncome <= 2000000) tax = 115000 + (netIncome - 1000000) * 0.25
+    else if (netIncome <= 5000000) tax = 365000 + (netIncome - 2000000) * 0.30
+    else tax = 1265000 + (netIncome - 5000000) * 0.35
+
+    const suggestions = [
+      { name: "ประกันชีวิต", max: 100000, saved: Math.min(100000, netIncome) * 0.05, desc: "ลดหย่อนได้สูงสุด 100,000 บาท" },
+      { name: "SSF (กองทุนรวม)", max: Math.min(incomeNum * 0.30, 200000), saved: Math.min(incomeNum * 0.30, 200000) * 0.05, desc: "ลดหย่อนได้ 30% ของรายได้ สูงสุด 200,000 บาท" },
+      { name: "RMF (กองทุนเกษียณ)", max: Math.min(incomeNum * 0.30, 500000), saved: Math.min(incomeNum * 0.30, 500000) * 0.05, desc: "ลดหย่อนได้ 30% ของรายได้ สูงสุด 500,000 บาท" },
+      { name: "ช้อปดีมีคืน", max: 50000, saved: Math.min(50000, netIncome) * 0.05, desc: "ลดหย่อนได้สูงสุด 50,000 บาท" },
+    ]
+
+    setResult({ incomeNum, expense, personalDeduct, spouseDeduct, netIncome, tax, suggestions })
+  }
+
+  const fmt = (n: number) => n.toLocaleString("th-TH", { minimumFractionDigits: 2 })
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-lg">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          🧾 คำนวณภาษีเงินได้บุคคลธรรมดา
+        </h1>
+        <p className="text-gray-500 mb-6 text-sm">
+          กรอกข้อมูลเพื่อดูภาษีที่ต้องจ่าย และวิธีประหยัดภาษี
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">รายได้ต่อปี (บาท)</label>
+            <input
+              type="number"
+              placeholder="เช่น 600000"
+              value={income}
+              onChange={(e) => setIncome(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">ประเภทรายได้</label>
+            <select
+              value={incomeType}
+              onChange={(e) => setIncomeType(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="salary">เงินเดือน (40(1))</option>
+              <option value="freelance">ฟรีแลนซ์ (40(2))</option>
+              <option value="business">ธุรกิจ (40(8))</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">สถานภาพ</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="single">โสด</option>
+              <option value="married">สมรส</option>
+            </select>
+          </div>
+
+          <button
+            onClick={calculate}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition"
           >
-            Documentation
-          </a>
+            คำนวณภาษี →
+          </button>
         </div>
-      </main>
-    </div>
-  );
+
+        {result && (
+          <div className="mt-6 bg-gray-50 rounded-xl p-5 space-y-2 text-sm">
+            <h2 className="font-bold text-gray-700 text-base mb-3">📊 สรุปผลการคำนวณ</h2>
+            <div className="flex justify-between text-gray-600">
+              <span>รายได้รวม</span>
+              <span>{fmt(result.incomeNum)} บาท</span>
+            </div>
+            <div className="flex justify-between text-gray-600">
+              <span>หักค่าใช้จ่าย</span>
+              <span>- {fmt(result.expense)} บาท</span>
+            </div>
+            <div className="flex justify-between text-gray-600">
+              <span>หักค่าลดหย่อนส่วนตัว</span>
+              <span>- {fmt(result.personalDeduct)} บาท</span>
+            </div>
+            {result.spouseDeduct > 0 && (
+              <div className="flex justify-between text-gray-600">
+                <span>หักค่าลดหย่อนคู่สมรส</span>
+                <span>- {fmt(result.spouseDeduct)} บาท</span>
+              </div>
+            )}
+            <div className="flex justify-between text-gray-600 border-t pt-2">
+              <span>เงินได้สุทธิ</span>
+              <span>{fmt(result.netIncome)} บาท</span>
+            </div>
+            <div className="flex justify-between font-bold text-lg text-red-500 border-t pt-2">
+              <span>ภาษีที่ต้องจ่าย</span>
+              <span>{fmt(result.tax)} บาท</span>
+            </div>
+
+            <div className="mt-4 pt-4 border-t">
+              <p className="font-bold text-green-600 mb-3">💡 ลดหย่อนเพิ่มได้อีก!</p>
+              <div className="space-y-2">
+                {result.suggestions.map((s) => (
+                  <div key={s.name} className="bg-green-50 rounded-lg p-3">
+                    <div className="flex justify-between font-medium text-gray-700">
+                      <span>{s.name}</span>
+                      <span className="text-green-600">ประหยัดได้ ~{s.saved.toLocaleString("th-TH", { maximumFractionDigits: 0 })} บาท</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">{s.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  )
 }
