@@ -19,6 +19,11 @@ export default function Home() {
   const [ssf, setSsf] = useState("");
   const [rmf, setRmf] = useState("");
   const [shopDeduct, setShopDeduct] = useState("");
+  const [healthInsurance, setHealthInsurance] = useState("");
+  const [parentDeduct, setParentDeduct] = useState("");
+  const [childDeduct, setChildDeduct] = useState("");
+  const [homeLoan, setHomeLoan] = useState("");
+  const [eReceipt, setEReceipt] = useState("");
   const [result, setResult] = useState<{
     incomeNum: number;
     expense: number;
@@ -49,7 +54,21 @@ export default function Home() {
       Math.min(incomeNum * 0.3, 500000),
     );
     const shopNum = Math.min(parseFloat(shopDeduct) || 0, 50000);
-    const extraDeduct = insuranceNum + ssfNum + rmfNum + shopNum;
+    const healthNum = Math.min(parseFloat(healthInsurance) || 0, 25000);
+    const parentNum = Math.min(parseFloat(parentDeduct) || 0, 30000);
+    const childNum = Math.min(parseFloat(childDeduct) || 0, 30000);
+    const homeLoanNum = Math.min(parseFloat(homeLoan) || 0, 100000);
+    const eReceiptNum = Math.min(parseFloat(eReceipt) || 0, 50000);
+    const extraDeduct =
+      insuranceNum +
+      ssfNum +
+      rmfNum +
+      shopNum +
+      healthNum +
+      parentNum +
+      childNum +
+      homeLoanNum +
+      eReceiptNum;
     const netIncome = Math.max(
       0,
       incomeNum - expense - personalDeduct - spouseDeduct - extraDeduct,
@@ -209,55 +228,122 @@ export default function Home() {
             <p className="text-sm font-semibold text-gray-700 mb-3">
               ✅ ลดหย่อนที่ใช้ไปแล้ว
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">
-                  ประกันชีวิต (≤100K)
-                </label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={insurance}
-                  onChange={(e) => setInsurance(e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">
-                  SSF (≤200K)
-                </label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={ssf}
-                  onChange={(e) => setSsf(e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">
-                  RMF (≤500K)
-                </label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={rmf}
-                  onChange={(e) => setRmf(e.target.value)}
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-400 mb-1">
-                  ช้อปดีมีคืน (≤50K)
-                </label>
-                <input
-                  type="number"
-                  placeholder="0"
-                  value={shopDeduct}
-                  onChange={(e) => setShopDeduct(e.target.value)}
-                  className={inputClass}
-                />
-              </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                ประกันชีวิต (≤100K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={insurance}
+                onChange={(e) => setInsurance(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                ประกันสุขภาพ (≤25K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={healthInsurance}
+                onChange={(e) => setHealthInsurance(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                SSF (≤200K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={ssf}
+                onChange={(e) => setSsf(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                RMF (≤500K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={rmf}
+                onChange={(e) => setRmf(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                ดอกเบี้ยบ้าน (≤100K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={homeLoan}
+                onChange={(e) => setHomeLoan(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                ค่าเลี้ยงดูบิดามารดา (≤30K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={parentDeduct}
+                onChange={(e) => setParentDeduct(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                ค่าลดหย่อนบุตร (≤30K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={childDeduct}
+                onChange={(e) => setChildDeduct(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                ช้อปดีมีคืน (≤50K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={shopDeduct}
+                onChange={(e) => setShopDeduct(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                Easy E-Receipt (≤50K)
+              </label>
+              <input
+                type="number"
+                placeholder="0"
+                value={eReceipt}
+                onChange={(e) => setEReceipt(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">&nbsp;</label>
+              <div
+                className={inputClass + " bg-gray-50 border-transparent"}
+              ></div>
             </div>
           </div>
 
