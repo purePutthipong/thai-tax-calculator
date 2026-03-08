@@ -15,11 +15,16 @@ export default function Home() {
   const [income, setIncome] = useState("");
   const [incomeType, setIncomeType] = useState("salary");
   const [status, setStatus] = useState("single");
+  const [insurance, setInsurance] = useState("");
+  const [ssf, setSsf] = useState("");
+  const [rmf, setRmf] = useState("");
+  const [shopDeduct, setShopDeduct] = useState("");
   const [result, setResult] = useState<{
     incomeNum: number;
     expense: number;
     personalDeduct: number;
     spouseDeduct: number;
+    extraDeduct: number;
     netIncome: number;
     tax: number;
     suggestions: { name: string; max: number; saved: number; desc: string }[];
@@ -34,10 +39,21 @@ export default function Home() {
     if (incomeType === "business") expense = Math.min(incomeNum * 0.6, 100000);
 
     const personalDeduct = 60000;
+    const insuranceNum = Math.min(parseFloat(insurance) || 0, 100000);
+    const ssfNum = Math.min(
+      parseFloat(ssf) || 0,
+      Math.min(incomeNum * 0.3, 200000),
+    );
+    const rmfNum = Math.min(
+      parseFloat(rmf) || 0,
+      Math.min(incomeNum * 0.3, 500000),
+    );
+    const shopNum = Math.min(parseFloat(shopDeduct) || 0, 50000);
+    const extraDeduct = insuranceNum + ssfNum + rmfNum + shopNum;
     const spouseDeduct = status === "married" ? 60000 : 0;
     const netIncome = Math.max(
       0,
-      incomeNum - expense - personalDeduct - spouseDeduct,
+      incomeNum - expense - personalDeduct - spouseDeduct - extraDeduct,
     );
 
     let tax = 0;
@@ -82,6 +98,7 @@ export default function Home() {
       expense,
       personalDeduct,
       spouseDeduct,
+      extraDeduct,
       netIncome,
       tax,
       suggestions,
@@ -178,6 +195,62 @@ export default function Home() {
               <option value="single">โสด</option>
               <option value="married">สมรส</option>
             </select>
+          </div>
+
+          <div className="border-t pt-4">
+            <p className="text-sm font-medium text-gray-700 mb-3">
+              ✅ ลดหย่อนที่ใช้ไปแล้ว (ถ้ามี)
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  ประกันชีวิต (สูงสุด 100,000)
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={insurance}
+                  onChange={(e) => setInsurance(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  SSF (สูงสุด 30% ของรายได้ / 200,000)
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={ssf}
+                  onChange={(e) => setSsf(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  RMF (สูงสุด 30% ของรายได้ / 500,000)
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={rmf}
+                  onChange={(e) => setRmf(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">
+                  ช้อปดีมีคืน (สูงสุด 50,000)
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={shopDeduct}
+                  onChange={(e) => setShopDeduct(e.target.value)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                />
+              </div>
+            </div>
           </div>
 
           <button
